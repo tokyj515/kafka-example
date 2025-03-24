@@ -1,43 +1,40 @@
-name: CI/CD to AKS
+name: CI/CD ACR + AKS (Producer)
 
 on:
   push:
     branches: [ main ]
 
 jobs:
-  build-and-deploy:
+  build-deploy-producer:
     runs-on: ubuntu-latest
 
     steps:
-      - name: 📥 Checkout 코드
+      - name: 📥 Checkout code
         uses: actions/checkout@v3
 
-      - name: ☕ JDK 17 설정
-        uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'temurin'
-
-      - name: ⚙️ Gradle 빌드
-        run: ./gradlew :producer:build
-
-      - name: 🔐 Azure 로그인
+      - name: 🔐 Azure Login
         uses: azure/login@v1
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🐳 Docker 로그인 (ACR)
-        run: az acr login --name ${{ secrets.ACR_NAME }}
+      - name: 🐳 ACR Docker Login
+        uses: azure/docker-login@v1
+        with:
+          login-server: yujinacr.azurecr.io
+          username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
+          password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
-      - name: 🧱 Docker 이미지 빌드 & Push
+      - name: ⚙️ Docker Build & Push - Producer
         run: |
-          docker build -t ${{ secrets.ACR_NAME }}/producer:latest ./producer
-          docker push ${{ secrets.ACR_NAME }}/producer:latest
+          docker build -t team08.azurecr.io/producer-service:v1 ./producer
+          docker push team08.azurecr.io/producer-service:v1
 
-      - name: ☸️ AKS 연결
-        run: |
-          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
+      - name: ☸️ Set AKS Context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: team08
+          cluster-name: team08aks
 
-      - name: 🚀 쿠버네티스 배포
+      - name: 🚀 Deploy to AKS - Producer
         run: |
-          kubectl apply -f k8s/producer-deployment.yaml
+          kubectl apply -f ./k8s/producer-deployment.yaml

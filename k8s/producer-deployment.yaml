@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: myacr.azurecr.io/producer:latest  # ACR 경로
+          image: team08.azurecr.io/producer-service:v1
           ports:
             - containerPort: 8080
 ---
