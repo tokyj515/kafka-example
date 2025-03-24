@@ -17,21 +17,16 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: 🐳 ACR Docker Login
-        uses: azure/docker-login@v1
-        with:
-          login-server: yujinacr.azurecr.io
-          username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
-          password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
-
       - name: ⚙️ Gradle Build - Create JAR
         run: ./gradlew :producer:build
+
+      - name: 🐳 ACR Docker Login (CLI 방식)
+        run: az acr login --name team08registry
 
       - name: 🐳 Docker Build & Push - Producer
         run: |
           docker build -t team08registry.azurecr.io/producer-service:v1 ./producer
           docker push team08registry.azurecr.io/producer-service:v1
-
 
       - name: ☸️ Set AKS Context
         uses: azure/aks-set-context@v3
