@@ -1,0 +1,43 @@
+name: CI/CD to AKS
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: 📥 Checkout 코드
+        uses: actions/checkout@v3
+
+      - name: ☕ JDK 17 설정
+        uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: ⚙️ Gradle 빌드
+        run: ./gradlew :producer:build
+
+      - name: 🔐 Azure 로그인
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: 🐳 Docker 로그인 (ACR)
+        run: az acr login --name ${{ secrets.ACR_NAME }}
+
+      - name: 🧱 Docker 이미지 빌드 & Push
+        run: |
+          docker build -t ${{ secrets.ACR_NAME }}/producer:latest ./producer
+          docker push ${{ secrets.ACR_NAME }}/producer:latest
+
+      - name: ☸️ AKS 연결
+        run: |
+          az aks get-credentials --resource-group ${{ secrets.RESOURCE_GROUP }} --name ${{ secrets.AKS_CLUSTER_NAME }} --overwrite-existing
+
+      - name: 🚀 쿠버네티스 배포
+        run: |
+          kubectl apply -f k8s/producer-deployment.yaml
