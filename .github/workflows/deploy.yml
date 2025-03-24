@@ -24,10 +24,14 @@ jobs:
           username: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientId }}
           password: ${{ fromJson(secrets.AZURE_CREDENTIALS).clientSecret }}
 
-      - name: ⚙️ Docker Build & Push - Producer
+      - name: ⚙️ Gradle Build - Create JAR
+        run: ./gradlew :producer:build
+
+      - name: 🐳 Docker Build & Push - Producer
         run: |
-          docker build -t team08.azurecr.io/producer-service:v1 ./producer
-          docker push team08.azurecr.io/producer-service:v1
+          docker build -t team08registry.azurecr.io/producer-service:v1 ./producer
+          docker push team08registry.azurecr.io/producer-service:v1
+
 
       - name: ☸️ Set AKS Context
         uses: azure/aks-set-context@v3
