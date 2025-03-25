@@ -33,5 +33,3 @@ spec:
                 secretKeyRef:
                   name: producer-db-secret
                   key: DB_PASSWORD
-            - name: SPRING_PROFILES_ACTIVE
-              value: dev
