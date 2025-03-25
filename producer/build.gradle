@@ -9,19 +9,16 @@ repositories {
     mavenCentral()
 }
 
+// ✅ 여기에 중복 처리 전략 추가
 processResources {
     from("src/main/resources") {
         include "**/*.yml"
     }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
-
 
 dependencies {
     implementation project(':common')
-//
-//    testImplementation platform('org.junit:junit-bom:5.10.0')
-//    testImplementation 'org.junit.jupiter:junit-jupiter'
-//    implementation 'org.postgresql:postgresql' // 👈 요거!
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-web'
@@ -32,11 +29,11 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
-    //kafka
+    // Kafka
     implementation 'org.springframework.kafka:spring-kafka'
     testImplementation 'org.springframework.kafka:spring-kafka-test'
 
-    //swagger
+    // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.0.4'
 }
 
