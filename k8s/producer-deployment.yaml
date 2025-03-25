@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: producer
-          image: team08.azurecr.io/producer-service:v1
+          image: team08registry.azurecr.io/producer-service:v1
           ports:
             - containerPort: 8080
 ---
