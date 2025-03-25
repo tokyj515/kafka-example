@@ -9,13 +9,13 @@ repositories {
     mavenCentral()
 }
 
-// ✅ 여기에 중복 처리 전략 추가
-processResources {
-    from("src/main/resources") {
-        include "**/*.yml"
-    }
-    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-}
+//// ✅ 여기에 중복 처리 전략 추가
+//processResources {
+//    from("src/main/resources") {
+//        include "**/*.yml"
+//    }
+//    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+//}
 
 dependencies {
     implementation project(':common')
