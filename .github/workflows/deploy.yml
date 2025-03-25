@@ -34,6 +34,14 @@ jobs:
           resource-group: team08
           cluster-name: team08aks
 
+      - name: 🔐 Create Kubernetes Secret for DB
+        run: |
+          kubectl create secret generic producer-db-secret \
+            --from-literal=DB_URL="${{ secrets.DB_URL }}" \
+            --from-literal=DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+            --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: 🚀 Deploy to AKS - Producer
         run: |
           kubectl apply -f ./k8s/producer-deployment.yaml

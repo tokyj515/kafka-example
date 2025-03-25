@@ -17,16 +17,21 @@ spec:
           image: team08registry.azurecr.io/producer-service:v1
           ports:
             - containerPort: 8080
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: producer-service
-spec:
-  selector:
-    app: producer
-  ports:
-    - protocol: TCP
-      port: 80
-      targetPort: 8080
-  type: LoadBalancer
+          env:
+            - name: DB_URL
+              valueFrom:
+                secretKeyRef:
+                  name: producer-db-secret
+                  key: DB_URL
+            - name: DB_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: producer-db-secret
+                  key: DB_USERNAME
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: producer-db-secret
+                  key: DB_PASSWORD
+            - name: SPRING_PROFILES_ACTIVE
+              value: dev
