@@ -30,4 +30,9 @@ public class ProducerController {
 
         return new ApiResponse<>("성공적으로 발행되었습니다");
     }
+
+    @GetMapping("/test")
+    public ApiResponse<String> test(){
+        return new ApiResponse<>("쿠버네티스 배포 테스트");
+    }
 }
