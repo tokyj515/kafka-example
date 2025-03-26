@@ -1,3 +1,4 @@
+# 💡 이미 있는 Deployment 정의
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -35,3 +36,17 @@ spec:
                   key: DB_PASSWORD
             - name: SPRING_PROFILES_ACTIVE
               value: dev
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: producer-service
+spec:
+  type: ClusterIP  # Ingress에서 접근만 가능하게 함
+  selector:
+    app: producer
+  ports:
+    - port: 80        # 클러스터 내 서비스 접근 포트
+      targetPort: 8080  # 실제 컨테이너 포트
