@@ -48,9 +48,14 @@ jobs:
       - name: 🧱 Apply IngressClass first
         run: kubectl apply -f ./k8s/ingress-class.yaml
 
-      - name: 🚀 Deploy Services + Ingress
-        run: kubectl apply -f ./k8s/
+      - name: 🚀 Apply Deployment & Service
+        run: |
+          kubectl apply -f ./k8s/producer-deployment.yaml
 
+      - name: 🚪 Delete & Reapply Ingress (ensure update)
+        run: |
+          kubectl delete ingress main-ingress --ignore-not-found
+          kubectl apply -f ./k8s/ingress.yaml
 
       - name: 🔄 Update Deployment Image ✅
         run: |
