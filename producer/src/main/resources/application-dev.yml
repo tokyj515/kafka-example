@@ -25,4 +25,5 @@ spring:
 springdoc:
   swagger-ui:
     path: /swagger-ui.html
-  use-root-path: true
+  api-docs:
+    path: /v3/api-docs
