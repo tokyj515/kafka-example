@@ -23,6 +23,8 @@ spring:
 
 
 springdoc:
+  api-docs:
+    path: /producer/v3/api-docs
   swagger-ui:
-    path: /swagger-ui.html  # ❗ 기본 경로 사용
-  use-root-path: false
+    path: /producer/swagger-ui.html
+  use-root-path: true
