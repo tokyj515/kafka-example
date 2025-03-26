@@ -45,9 +45,12 @@ jobs:
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: 🚀 Deploy All Services + Ingress
-        run: |
-          kubectl apply -f ./k8s/
+      - name: 🧱 Apply IngressClass first
+        run: kubectl apply -f ./k8s/ingress-class.yaml
+
+      - name: 🚀 Deploy Services + Ingress
+        run: kubectl apply -f ./k8s/
+
 
       - name: 🔄 Update Deployment Image ✅
         run: |
