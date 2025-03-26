@@ -25,8 +25,11 @@ jobs:
 
       - name: 🐳 Docker Build & Push - Producer
         run: |
-          docker build -t team08registry.azurecr.io/producer-service:v1 ./producer
-          docker push team08registry.azurecr.io/producer-service:v1
+          IMAGE_TAG=producer-service:${{ github.sha }}
+          docker build -t team08registry.azurecr.io/$IMAGE_TAG ./producer
+          docker push team08registry.azurecr.io/$IMAGE_TAG
+
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: ☸️ Set AKS Context
         uses: azure/aks-set-context@v3
@@ -46,3 +49,6 @@ jobs:
         run: |
           kubectl apply -f ./k8s/
 
+      - name: 🔄 Update Deployment Image ✅
+        run: |
+          kubectl set image deployment/producer-deployment producer=team08registry.azurecr.io/$IMAGE_TAG
