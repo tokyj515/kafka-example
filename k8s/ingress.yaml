@@ -15,7 +15,7 @@ spec:
                 port:
                   number: 80
           - path: /producer/swagger-ui.html
-            pathType: Prefix
+            pathType: Exact
             backend:
               service:
                 name: producer-service
