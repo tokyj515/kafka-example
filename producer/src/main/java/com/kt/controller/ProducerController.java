@@ -14,14 +14,14 @@ import org.springframework.web.bind.annotation.RestController;
 @Tag(name = "UserController", description = "user 관련 API")
 @Slf4j
 @RequiredArgsConstructor
-@RequestMapping
+@RequestMapping("/producer")
 @RestController
 public class ProducerController {
 
     private final ProducerService producerService;
 
     @Operation(summary = "producer test", description = "producer test")
-    @GetMapping("/produce-message")
+    @GetMapping("/message")
     public ApiResponse<String> sendMessage(
             @RequestParam Long userId,
             @RequestParam String message
