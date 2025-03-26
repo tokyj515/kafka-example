@@ -24,5 +24,5 @@ spring:
 
 springdoc:
   swagger-ui:
-    path: /swagger-ui/index.html  # ❗ 기본 경로 사용
-  use-root-path: true
+    path: /swagger-ui.html  # ❗ 기본 경로 사용
+  use-root-path: false
