@@ -16,6 +16,7 @@ spec:
       containers:
         - name: producer
           image: team08registry.azurecr.io/producer-service:v1
+          imagePullPolicy: Always  # ✅ 이거 추가
           ports:
             - containerPort: 8080
           env:
