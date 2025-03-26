@@ -42,6 +42,7 @@ jobs:
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: 🚀 Deploy to AKS - Producer
+      - name: 🚀 Deploy All Services + Ingress
         run: |
-          kubectl apply -f ./k8s/producer-deployment.yaml
+          kubectl apply -f ./k8s/
+
