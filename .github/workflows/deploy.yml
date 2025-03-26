@@ -28,7 +28,6 @@ jobs:
           IMAGE_TAG=producer-service:${{ github.sha }}
           docker build -t team08registry.azurecr.io/$IMAGE_TAG ./producer
           docker push team08registry.azurecr.io/$IMAGE_TAG
-
           echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
 
       - name: ☸️ Set AKS Context
@@ -60,3 +59,11 @@ jobs:
       - name: 🔄 Update Deployment Image ✅
         run: |
           kubectl set image deployment/producer-deployment producer=team08registry.azurecr.io/$IMAGE_TAG
+
+      - name: 🧹 Delete old ReplicaSets (DESIRED=0)
+        run: |
+          kubectl get rs \
+            --selector=app=producer \
+            --no-headers \
+            | awk '$2==0 && $3==0 && $4==0 {print $1}' \
+            | xargs -r kubectl delete rs
