@@ -105,10 +105,10 @@ jobs:
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: 🔐 Create Secret - Consumer Kafka
+      - name: 🔐 Create Secret - Producer Kafka
         run: |
-          kubectl create secret generic consumer-kafka-secret \
-            --from-literal=KAFKA_CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
+          kubectl create secret generic producer-kafka-secret \
+            --from-literal=CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
       - name: 🛠 Deploy Consumer
