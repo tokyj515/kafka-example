@@ -1,0 +1,49 @@
+server:
+  port: 8080
+
+spring:
+  application:
+    name: consumer-service
+
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    properties:
+      hibernate:
+        format_sql: true
+        show_sql: true
+    open-in-view: false
+
+  spring:
+    kafka:
+      bootstrap-servers: team08kafka.servicebus.windows.net:9093
+      consumer:
+        group-id: consumer-group
+        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+        properties:
+          spring.json.trusted.packages: "*" # DTO 패키지 신뢰
+          spring.json.type.mapping: |
+            test-message:com.kt.dto.request.MessagePayload
+      properties:
+        security.protocol: SASL_SSL
+        sasl.mechanism: PLAIN
+        sasl.jaas.config: >
+          org.apache.kafka.common.security.plain.PlainLoginModule required
+          username="$ConnectionString"
+          password="${KAFKA_CONNECTION_STRING}";
+
+
+springdoc:
+  api-docs:
+    path: /consumer/v3/api-docs
+  swagger-ui:
+    path: /consumer/swagger-ui.html
+  use-root-path: true

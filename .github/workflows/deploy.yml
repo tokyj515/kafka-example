@@ -1,4 +1,4 @@
-name: CI/CD ACR + AKS (Producer)
+name: CI/CD ACR + AKS (Producer + Consumer)
 
 on:
   push:
@@ -7,7 +7,6 @@ on:
 jobs:
   build-deploy-producer:
     runs-on: ubuntu-latest
-
     steps:
       - name: 📥 Checkout code
         uses: actions/checkout@v3
@@ -17,26 +16,26 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      - name: ⚙️ Gradle Build - Create JAR
+      - name: ⚙️ Gradle Build - Producer
         run: ./gradlew :producer:build
 
-      - name: 🐳 ACR Docker Login (CLI 방식)
+      - name: 🐳 ACR Docker Login
         run: az acr login --name team08registry
 
       - name: 🐳 Docker Build & Push - Producer
         run: |
-          IMAGE_TAG=producer-service:${{ github.sha }}
-          docker build -t team08registry.azurecr.io/$IMAGE_TAG ./producer
-          docker push team08registry.azurecr.io/$IMAGE_TAG
-          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+          PRODUCER_IMAGE_TAG=producer-service:${{ github.sha }}
+          docker build -t team08registry.azurecr.io/$PRODUCER_IMAGE_TAG ./producer
+          docker push team08registry.azurecr.io/$PRODUCER_IMAGE_TAG
+          echo "PRODUCER_IMAGE_TAG=$PRODUCER_IMAGE_TAG" >> $GITHUB_ENV
 
-      - name: ☸️ Set AKS Context
+      - name: ☘️ Set AKS Context
         uses: azure/aks-set-context@v3
         with:
           resource-group: team08
           cluster-name: team08aks
 
-      - name: 🔐 Create Kubernetes Secret for DB
+      - name: 🔐 Create Secret - Producer DB
         run: |
           kubectl create secret generic producer-db-secret \
             --from-literal=DB_URL="${{ secrets.DB_URL }}" \
@@ -44,32 +43,94 @@ jobs:
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: 🔐 Create Kubernetes Secret for Kafka
+      - name: 🔐 Create Secret - Producer Kafka
         run: |
           kubectl create secret generic producer-kafka-secret \
-            --from-literal=CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
+            --from-literal=KAFKA_CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
-      - name: 🧱 Apply IngressClass first
-        run: kubectl apply -f ./k8s/ingress-class.yaml
-
-      - name: 🚀 Apply Deployment & Service
+      - name: 🛠 Deploy Producer
         run: |
           kubectl apply -f ./k8s/producer-deployment.yaml
+          kubectl set image deployment/producer-deployment producer=team08registry.azurecr.io/$PRODUCER_IMAGE_TAG
 
-      - name: 🚪 Delete & Reapply Ingress (ensure update)
+      - name: 🕵️ Clean Producer Old ReplicaSets
         run: |
+          kubectl get rs --selector=app=producer --no-headers | awk '$2==0 && $3==0 && $4==0 {print $1}' | xargs -r kubectl delete rs
+
+  build-deploy-consumer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔐 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ⚙️ Gradle Build - Consumer
+        run: ./gradlew :consumer:build
+
+      - name: 🐳 ACR Docker Login
+        run: az acr login --name team08registry
+
+      - name: 🐳 Docker Build & Push - Consumer
+        run: |
+          CONSUMER_IMAGE_TAG=consumer-service:${{ github.sha }}
+          docker build -t team08registry.azurecr.io/$CONSUMER_IMAGE_TAG ./consumer
+          docker push team08registry.azurecr.io/$CONSUMER_IMAGE_TAG
+          echo "CONSUMER_IMAGE_TAG=$CONSUMER_IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: ☘️ Set AKS Context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: team08
+          cluster-name: team08aks
+
+      - name: 🔐 Create Secret - Consumer DB
+        run: |
+          kubectl create secret generic consumer-db-secret \
+            --from-literal=DB_URL="${{ secrets.DB_URL }}" \
+            --from-literal=DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+            --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: 🔐 Create Secret - Consumer Kafka
+        run: |
+          kubectl create secret generic consumer-kafka-secret \
+            --from-literal=KAFKA_CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: 🛠 Deploy Consumer
+        run: |
+          kubectl apply -f ./k8s/consumer-deployment.yaml
+          kubectl set image deployment/consumer-deployment consumer=team08registry.azurecr.io/$CONSUMER_IMAGE_TAG
+
+      - name: 🕵️ Clean Consumer Old ReplicaSets
+        run: |
+          kubectl get rs --selector=app=consumer --no-headers | awk '$2==0 && $3==0 && $4==0 {print $1}' | xargs -r kubectl delete rs
+
+  apply-ingress:
+    needs: [build-deploy-producer, build-deploy-consumer]
+    runs-on: ubuntu-latest
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v3
+
+      - name: 🔐 Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: ☘️ Set AKS Context
+        uses: azure/aks-set-context@v3
+        with:
+          resource-group: team08
+          cluster-name: team08aks
+
+      - name: 🏪 Apply Ingress
+        run: |
+          kubectl apply -f ./k8s/ingress-class.yaml
           kubectl delete ingress main-ingress --ignore-not-found
           kubectl apply -f ./k8s/ingress.yaml
-
-      - name: 🔄 Update Deployment Image ✅
-        run: |
-          kubectl set image deployment/producer-deployment producer=team08registry.azurecr.io/$IMAGE_TAG
-
-      - name: 🧹 Delete old ReplicaSets (DESIRED=0)
-        run: |
-          kubectl get rs \
-            --selector=app=producer \
-            --no-headers \
-            | awk '$2==0 && $3==0 && $4==0 {print $1}' \
-            | xargs -r kubectl delete rs
