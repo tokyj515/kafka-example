@@ -29,7 +29,7 @@ spring:
       properties:
         spring.json.trusted.packages: "*"
         spring.json.type.mapping: |
-          test-message:com.kt.dto.request.MessagePayload
+          test-message:com.kt.dto.response.MessagePayload
     properties:
       security.protocol: SASL_SSL
       sasl.mechanism: PLAIN
