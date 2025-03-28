@@ -6,6 +6,7 @@ import lombok.*;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder  // 👈 이거 추가!
 public class MessagePayload {
     private Long id;
     private String name;
