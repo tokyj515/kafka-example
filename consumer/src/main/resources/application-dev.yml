@@ -11,7 +11,6 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -21,25 +20,23 @@ spring:
         show_sql: true
     open-in-view: false
 
-  spring:
-    kafka:
-      bootstrap-servers: team08kafka.servicebus.windows.net:9093
-      consumer:
-        group-id: consumer-group
-        key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
-        value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
-        properties:
-          spring.json.trusted.packages: "*" # DTO 패키지 신뢰
-          spring.json.type.mapping: |
-            test-message:com.kt.dto.request.MessagePayload
+  kafka:
+    bootstrap-servers: team08kafka.servicebus.windows.net:9093
+    consumer:
+      group-id: consumer-group
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
       properties:
-        security.protocol: SASL_SSL
-        sasl.mechanism: PLAIN
-        sasl.jaas.config: >
-          org.apache.kafka.common.security.plain.PlainLoginModule required
-          username="$ConnectionString"
-          password="${KAFKA_CONNECTION_STRING}";
-
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: |
+          test-message:com.kt.dto.request.MessagePayload
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="$ConnectionString"
+        password="${KAFKA_CONNECTION_STRING}";
 
 springdoc:
   api-docs:
