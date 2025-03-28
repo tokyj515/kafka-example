@@ -3,11 +3,9 @@ package com.kt;
 
 import lombok.*;
 
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
 public class MessagePayload {
     private Long id;
     private String name;
