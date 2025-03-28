@@ -45,6 +45,12 @@ spec:
                 secretKeyRef:
                   name: producer-kafka-secret
                   key: CONNECTION_STRING
+            - name: AZURE_STORAGE_ACCOUNT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: azure-storage-secret
+                  key: AZURE_STORAGE_ACCOUNT_KEY
+
 
 
 ---

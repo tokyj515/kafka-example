@@ -49,6 +49,13 @@ jobs:
             --from-literal=KAFKA_CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: 🔐 Create Secret - Azure Blob Storage
+        run: |
+          kubectl create secret generic azure-storage-secret \
+            --from-literal=AZURE_STORAGE_ACCOUNT_KEY="${{ secrets.AZURE_STORAGE_ACCOUNT_KEY }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
+
       - name: 🛠 Deploy Producer
         run: |
           kubectl apply -f ./k8s/producer-deployment.yaml

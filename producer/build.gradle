@@ -35,6 +35,10 @@ dependencies {
 
     // Swagger
     implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:2.2.0'
+
+    // Storage
+    implementation 'com.azure:azure-storage-blob:12.25.0'
+
 }
 
 test {

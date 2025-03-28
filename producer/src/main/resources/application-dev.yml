@@ -46,3 +46,10 @@ springdoc:
   swagger-ui:
     path: /producer/swagger-ui.html
   use-root-path: true
+
+
+azure:
+  storage:
+    account-name: team08sa
+    account-key: ${AZURE_STORAGE_ACCOUNT_KEY}
+    container-name: images
