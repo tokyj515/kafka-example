@@ -44,6 +44,12 @@ jobs:
             --from-literal=DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
             --dry-run=client -o yaml | kubectl apply -f -
 
+      - name: 🔐 Create Kubernetes Secret for Kafka
+        run: |
+          kubectl create secret generic producer-kafka-secret \
+            --from-literal=CONNECTION_STRING="${{ secrets.KAFKA_CONNECTION_STRING }}" \
+            --dry-run=client -o yaml | kubectl apply -f -
+
       - name: 🧱 Apply IngressClass first
         run: kubectl apply -f ./k8s/ingress-class.yaml
 

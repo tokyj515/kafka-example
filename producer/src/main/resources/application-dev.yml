@@ -11,7 +11,6 @@ spring:
     username: ${SPRING_DATASOURCE_USERNAME}
     password: ${SPRING_DATASOURCE_PASSWORD}
 
-
   jpa:
     hibernate:
       ddl-auto: update
@@ -20,6 +19,25 @@ spring:
         format_sql: true
         show_sql: true
     open-in-view: false
+
+
+
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS}
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.StringSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+      properties:
+        spring.json.trusted.packages: "*"
+        spring.json.type.mapping: |
+          test-message:com.kt.dto.request.ProducerExampleRequest
+    properties:
+      security.protocol: SASL_SSL
+      sasl.mechanism: PLAIN
+      sasl.jaas.config: >
+        org.apache.kafka.common.security.plain.PlainLoginModule required
+        username="$ConnectionString"
+        password="${KAFKA_CONNECTION_STRING}";
 
 
 springdoc:

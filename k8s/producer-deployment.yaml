@@ -38,6 +38,15 @@ spec:
                   key: DB_PASSWORD
             - name: SPRING_PROFILES_ACTIVE
               value: dev
+            - name: KAFKA_BOOTSTRAP_SERVERS
+              value: "team08kafka.servicebus.windows.net:9093"
+            - name: KAFKA_CONNECTION_STRING
+              valueFrom:
+                secretKeyRef:
+                  name: producer-kafka-secret
+                  key: CONNECTION_STRING
+
+
 ---
 apiVersion: v1
 kind: Service

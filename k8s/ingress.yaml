@@ -14,6 +14,13 @@ spec:
                 name: producer-service
                 port:
                   number: 80
+          - path: /consumer
+            pathType: Prefix
+            backend:
+              service:
+                name: consumer-service
+                port:
+                  number: 80
 #          - path: /order
 #            pathType: Prefix
 #            backend:
